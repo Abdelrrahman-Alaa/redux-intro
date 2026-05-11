@@ -1,19 +1,45 @@
 import { useState } from "react";
+import { useDispatch } from "react-redux";
+import { deposit, payLoan, requestLoan, withdraw } from "./accountSlice";
+import { useSelector } from "react-redux";
 
 function AccountOperations() {
   const [depositAmount, setDepositAmount] = useState("");
-  const [withdrawalAmount, setWithdrawalAmount] = useState("");
+  const [withdrawAmount, setWithdrawAmount] = useState("");
   const [loanAmount, setLoanAmount] = useState("");
   const [loanPurpose, setLoanPurpose] = useState("");
   const [currency, setCurrency] = useState("USD");
+  const dispatch = useDispatch();
+  const { loan } = useSelector((store) => store.account);
+  function handleDeposit() {
+    if (!depositAmount) {
+      return;
+    }
+    dispatch(deposit(depositAmount));
+    setDepositAmount("");
+  }
 
-  function handleDeposit() {}
+  function handleWithdrawal() {
+    if (!withdrawAmount) {
+      return;
+    }
+    dispatch(withdraw(withdrawAmount));
+    setWithdrawAmount("");
+  }
 
-  function handleWithdrawal() {}
+  function handleRequestLoan() {
+    if (!loanAmount || !loanPurpose) {
+      return;
+    }
+    dispatch(requestLoan(loanAmount, loanPurpose));
 
-  function handleRequestLoan() {}
+    setLoanAmount("");
+    setLoanPurpose("");
+  }
 
-  function handlePayLoan() {}
+  function handlePayLoan() {
+    dispatch(payLoan());
+  }
 
   return (
     <div>
@@ -42,12 +68,10 @@ function AccountOperations() {
           <label>Withdraw</label>
           <input
             type="number"
-            value={withdrawalAmount}
-            onChange={(e) => setWithdrawalAmount(+e.target.value)}
+            value={withdrawAmount}
+            onChange={(e) => setWithdrawAmount(+e.target.value)}
           />
-          <button onClick={handleWithdrawal}>
-            Withdraw {withdrawalAmount}
-          </button>
+          <button onClick={handleWithdrawal}>Withdraw {withdrawAmount}</button>
         </div>
 
         <div>
@@ -66,10 +90,12 @@ function AccountOperations() {
           <button onClick={handleRequestLoan}>Request loan</button>
         </div>
 
-        <div>
-          <span>Pay back $X</span>
-          <button onClick={handlePayLoan}>Pay loan</button>
-        </div>
+        {loan > 0 && (
+          <div>
+            <span>Pay back {loan}</span>{" "}
+            <button onClick={handlePayLoan}>Pay loan</button>
+          </div>
+        )}
       </div>
     </div>
   );
